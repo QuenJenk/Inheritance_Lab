@@ -5,15 +5,50 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <chrono>
+#include <iomanip>
+#include <sstream>
 
 // Quentin Jenkins 10/5/26
-// Operator Overload & Inheritance Lab
+// Operator Overload & Inheritance Lab (Updated with Composition)
+
+class Transaction {
+public:
+    std::string type;
+    double amount;
+    std::string timestamp;
+
+    Transaction(std::string t, double amt, std::string timeStr)
+        : type(t), amount(amt), timestamp(timeStr) {}
+};
+
 
 class BankAccount {
-protected: // Changed from private so derived classes can read/write if needed
+private:
+    // REQUIREMENT: Private transaction history composition
+    std::vector<Transaction> transactionHistory;
+
+protected:
     std::string accountNumber;
     std::string* accountHolderName;
     double* balance;
+
+    // Protected helper to easily log transactions from base or derived classes
+    void logTransaction(const std::string& type, double amount) {
+        auto now = std::chrono::system_clock::now();
+        std::time_t timeNow = std::chrono::system_clock::to_time_t(now);
+        std::stringstream ss;
+
+        #if defined(_MSC_VER)
+            struct tm buf;
+            localtime_s(&buf, &timeNow);
+            ss << std::put_time(&buf, "%Y-%m-%d %H:%M:%S");
+        #else
+            ss << std::put_time(std::localtime(&timeNow), "%Y-%m-%d %H:%M:%S");
+        #endif
+
+        transactionHistory.emplace_back(type, amount, ss.str());
+    }
 
 public:
     BankAccount();
@@ -32,16 +67,19 @@ public:
     // REQUIREMENT: Virtual withdraw method to allow polymorphic overriding
     virtual bool withdraw(double amount);
     BankAccount& operator+=(double amount);
-    BankAccount& operator-=(double amount); // Will now call the virtual withdraw()
+    BankAccount& operator-=(double amount);
 
     bool operator==(const BankAccount& other) const;
     bool operator<(const BankAccount& other) const;
     bool operator>(const BankAccount& other) const;
 
+    // REQUIREMENT: Public method to print the transaction log
+    void printHistory() const;
+
     static void printAccount(const BankAccount& account);
 };
 
-// REQUIREMENT: CheckingAccount Class
+
 class CheckingAccount : public BankAccount {
 private:
     double transactionFee;
@@ -54,10 +92,10 @@ public:
     double getTransactionFee() const { return transactionFee; }
 };
 
-// REQUIREMENT: SavingsAccount Class
+
 class SavingsAccount : public BankAccount {
 private:
-    double interestRate; // e.g., 0.02 for 2%
+    double interestRate;
 
 public:
     SavingsAccount(std::string accNum, std::string name, double initialBalance, double rate);

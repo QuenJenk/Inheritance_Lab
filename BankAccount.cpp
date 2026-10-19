@@ -152,3 +152,13 @@ std::string getValidString(const std::string& prompt) {
         std::cout << "Input cannot be empty. Please try again.\n";
     }
 }
+void BankAccount::printHistory() const {
+    std::cout << "\n--- History for Acc #: " << accountNumber << " ---\n";
+    if (transactionHistory.empty()) {
+        std::cout << "No recorded transactions found.\n";
+        return;
+    }
+    for (const auto& tx : transactionHistory) {
+        std::cout << "[" << tx.timestamp << "] " << tx.type << ": $" << tx.amount << "\n";
+    }
+}

@@ -1,3 +1,4 @@
+#include "BankAccount.cpp"
 #include "BankAccount.h"
 #include <iostream>
 #include <vector>
@@ -6,7 +7,7 @@
 #include <iomanip>
 
 int main() {
-    // REQUIREMENT: Container utilizing unique_ptr managing base class allocations
+    // Container utilizing unique_ptr managing base class allocations
     std::vector<std::unique_ptr<BankAccount>> bank;
     int choice = 0;
 
@@ -23,8 +24,9 @@ int main() {
         std::cout << "6. Display All Accounts\n";
         std::cout << "7. Find Wealthiest & Poorest Accounts\n";
         std::cout << "8. Exit\n";
+        std::cout << "9. View Account Transaction History\n"; // Added option
 
-        std::cout << "Enter your choice (1-8): ";
+        std::cout << "Enter your choice (1-9): ";
         if (!(std::cin >> choice)) {
             std::cout << "Invalid input.\n";
             std::cin.clear();
@@ -34,7 +36,7 @@ int main() {
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
         switch (choice) {
-            case 1: { // REQUIREMENT: Add instances of CheckingAccount
+            case 1: { // Add instances of CheckingAccount
                 std::string accNum = getValidString("Enter Unique Account Number: ");
                 if (findAccountIndex(bank, accNum) != -1) {
                     std::cout << "Error: Account number already exists!\n";
@@ -48,7 +50,7 @@ int main() {
                 std::cout << "Checking Account created successfully!\n";
                 break;
             }
-            case 2: { // REQUIREMENT: Add instances of SavingsAccount
+            case 2: { // Add instances of SavingsAccount
                 std::string accNum = getValidString("Enter Unique Account Number: ");
                 if (findAccountIndex(bank, accNum) != -1) {
                     std::cout << "Error: Account number already exists!\n";
@@ -74,7 +76,7 @@ int main() {
                 }
                 break;
             }
-            case 4: { // REQUIREMENT: Demonstrate polymorphism via Base pointer withdrawal
+            case 4: { // Demonstrate polymorphism via Base pointer withdrawal
                 std::string accNum = getValidString("Enter Account Number: ");
                 int index = findAccountIndex(bank, accNum);
                 if (index == -1) {
@@ -144,6 +146,16 @@ int main() {
             case 8:
                 std::cout << "Thank you for using the Banking Management System. Goodbye!\n";
                 break;
+            case 9: { // REQUIREMENT: Display transaction history composition
+                std::string accNum = getValidString("Enter Account Number to view history: ");
+                int index = findAccountIndex(bank, accNum);
+                if (index == -1) {
+                    std::cout << "Account not found.\n";
+                } else {
+                    bank[index]->printHistory();
+                }
+                break;
+            }
             default:
                 std::cout << "Invalid choice.\n";
                 break;
